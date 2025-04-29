@@ -25,7 +25,7 @@ A Model Context Protocol (MCP) server that provides direct PostgreSQL database q
       "mcpServers": {
         "postgresql-mcp": {
           "command": "node",
-          "args": ["/Users/anirjeethv/Desktop/postgresql-mcp-server/build/index.js"],
+          "args": ["/Users/1Levick3/Desktop/postgresql-mcp-server/build/index.js"],
           "disabled": false,
           "alwaysAllow": [],
           "env": {
