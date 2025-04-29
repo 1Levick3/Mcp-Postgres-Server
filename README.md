@@ -2,7 +2,8 @@
 
 [![smithery badge](https://smithery.ai/badge/@1Levick3/postgresql-mcp-server)](https://smithery.ai/server/@1Levick3/postgresql-mcp-server)
 
-A Model Context Protocol (MCP) server that provides direct PostgreSQL database query execution capabilities. This server enables custom SQL query execution against PostgreSQL databases with support for parameterized queries and configurable timeouts.
+A Model Context Protocol (MCP) server that provides direct PostgreSQL database query execution capabilities. This server enables custom SQL query execution against PostgreSQL databases with support for parameterized queries and configurable timeouts. This project is designed specifically for use with the Cursor IDE.
+
 
 ## Prerequisites
 
@@ -35,7 +36,7 @@ npx -y @smithery/cli install @1Levick3/postgresql-mcp-server --client claude
       "mcpServers": {
         "postgresql-mcp": {
           "command": "node",
-          "args": ["/Users/anirjeethv/Desktop/postgresql-mcp-server/build/index.js"],
+          "args": ["/Users/1Levick3/Desktop/postgresql-mcp-server/build/index.js"],
           "disabled": false,
           "alwaysAllow": [],
           "env": {

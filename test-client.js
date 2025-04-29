@@ -1,13 +1,23 @@
 #!/usr/bin/env node
 
 /**
- * Simple test client for the PostgreSQL MCP server
+ * PostgreSQL MCP Server Test Client
+ * 
+ * A command-line tool for testing PostgreSQL MCP Server functionality.
  * 
  * Usage:
  *   node test-client.js <tool-name> <arguments-json>
  * 
- * Example:
- *   node test-client.js get_schema_info '{"connectionString":"postgresql://user:password@localhost:5432/dbname"}'
+ * Available Tools:
+ *   - execute_custom_query: Execute custom SQL queries against PostgreSQL
+ * 
+ * Examples:
+ *   # Execute a custom query
+ *   node test-client.js execute_custom_query '{
+ *     "connectionString": "postgresql://user:password@localhost:5432/dbname",
+ *     "query": "SELECT * FROM users",
+ *     "timeout": 5000
+ *   }'
  */
 
 import { spawn } from 'child_process';
@@ -17,18 +27,46 @@ import { resolve } from 'path';
 const toolName = process.argv[2];
 const argsJson = process.argv[3] || '{}';
 
+// Validate arguments
 if (!toolName) {
   console.error('Error: Tool name is required');
-  console.error('Usage: node test-client.js <tool-name> <arguments-json>');
+  console.error('\nAvailable Tools:');
+  console.error('  - execute_custom_query: Execute custom SQL queries against PostgreSQL');
+  console.error('\nUsage:');
+  console.error('  node test-client.js <tool-name> <arguments-json>');
+  console.error('\nExample:');
+  console.error('  node test-client.js execute_custom_query \'{"connectionString":"postgresql://user:password@localhost:5432/dbname","query":"SELECT * FROM users"}\'');
   process.exit(1);
 }
 
+// Validate tool name
+const validTools = ['execute_custom_query'];
+if (!validTools.includes(toolName)) {
+  console.error(`Error: Invalid tool name '${toolName}'`);
+  console.error('Valid tools are:', validTools.join(', '));
+  process.exit(1);
+}
+
+// Parse JSON arguments
 let args;
 try {
   args = JSON.parse(argsJson);
 } catch (error) {
   console.error('Error parsing JSON arguments:', error.message);
+  console.error('Please provide valid JSON as the second argument');
   process.exit(1);
+}
+
+// Validate required arguments for execute_custom_query
+if (toolName === 'execute_custom_query') {
+  if (!args.connectionString) {
+    console.error('Error: connectionString is required for execute_custom_query');
+    process.exit(1);
+  }
+  if (!args.query) {
+    console.error('Error: query is required for execute_custom_query');
+    process.exit(1);
+  }
 }
 
 // Path to the MCP server
@@ -45,7 +83,7 @@ serverProcess.on('error', (error) => {
   process.exit(1);
 });
 
-// Create a request to the MCP server
+// Send request to server
 const request = {
   jsonrpc: '2.0',
   id: 1,
@@ -56,8 +94,8 @@ const request = {
   }
 };
 
-// Send the request to the server
 serverProcess.stdin.write(JSON.stringify(request) + '\n');
+serverProcess.stdin.end();
 
 // Collect response data
 let responseData = '';
@@ -68,11 +106,14 @@ serverProcess.stdout.on('data', (data) => {
     // Try to parse the response
     const response = JSON.parse(responseData);
     
-    // Format and print the response
+    // Handle error response
     if (response.error) {
       console.error('Error:', response.error.message);
-    } else if (response.result && response.result.content) {
-      // Extract and parse the content
+      process.exit(1);
+    }
+    
+    // Handle successful response
+    if (response.result && response.result.content) {
       const content = response.result.content[0].text;
       try {
         // Try to parse as JSON for pretty printing
@@ -83,10 +124,11 @@ serverProcess.stdout.on('data', (data) => {
         console.log(content);
       }
     } else {
-      console.log('Unexpected response format:', response);
+      console.error('Unexpected response format:', response);
+      process.exit(1);
     }
     
-    // Exit after processing the response
+    // Clean up and exit
     serverProcess.kill();
     process.exit(0);
   } catch (error) {
@@ -94,16 +136,13 @@ serverProcess.stdout.on('data', (data) => {
   }
 });
 
-// Handle server process exit
-serverProcess.on('exit', (code) => {
-  if (code !== 0 && code !== null) {
-    console.error(`MCP server exited with code ${code}`);
-    process.exit(code);
-  }
+// Handle process exit
+process.on('SIGINT', () => {
+  serverProcess.kill();
+  process.exit(0);
 });
 
-// Handle CTRL+C to gracefully terminate the server
-process.on('SIGINT', () => {
+process.on('SIGTERM', () => {
   serverProcess.kill();
   process.exit(0);
 }); 
