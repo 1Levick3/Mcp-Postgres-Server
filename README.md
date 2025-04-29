@@ -1,6 +1,6 @@
 # PostgreSQL MCP Server
 
-A Model Context Protocol (MCP) server that provides direct PostgreSQL database query execution capabilities. This server enables custom SQL query execution against PostgreSQL databases with support for parameterized queries and configurable timeouts.
+A Model Context Protocol (MCP) server that provides direct PostgreSQL database query execution capabilities. This server enables custom SQL query execution against PostgreSQL databases with support for parameterized queries and configurable timeouts. This project is designed specifically for use with the Cursor IDE.
 
 ## Prerequisites
 
