@@ -30,7 +30,7 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/your-username/postgresql-mcp-server.git
+   git clone https://github.com/1Levick3/postgresql-mcp-server.git
    cd postgresql-mcp-server
    ```
 3. Install dependencies:
